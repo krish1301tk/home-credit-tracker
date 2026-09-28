@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home Credit Cloud Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--text:#172033;--muted:#687386;--primary:#315efb;--danger:#dc3545;--border:#e1e6ef;--shadow:0 6px 22px #17203312}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:#111827;color:#fff;padding:15px 18px;position:sticky;top:0;z-index:5}.header{max-width:1250px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:19px;font-weight:800}.brand small{display:block;color:#aeb7c7;font-size:10px;font-weight:500}
+nav{display:flex;gap:4px;flex-wrap:wrap}nav button{border:0;background:transparent;color:#cbd5e1;padding:9px 11px;border-radius:8px;cursor:pointer;font-weight:700}nav button.active,nav button:hover{background:#263246;color:#fff}
+main{max-width:1250px;margin:20px auto;padding:0 15px}.page{display:none}.page.active{display:block}.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow)}.section{margin-top:16px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.stat .label{font-size:12px;color:var(--muted)}.stat .value{font-size:26px;font-weight:800;margin-top:6px}
+.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.field label{display:block;font-size:11px;font-weight:800;color:#4b5563;margin-bottom:6px}.field input{width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;font-size:14px}.field input:focus{outline:2px solid #315efb22;border-color:var(--primary)}
+.actions,.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.actions{margin-top:14px}.btn{border:0;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer}.primary{background:var(--primary);color:#fff}.secondary{background:#e9edf5;color:#253047}.danger{background:#fee2e2;color:#991b1b}.success{background:#dcfce7;color:#166534}.toolbar input{padding:10px;border:1px solid var(--border);border-radius:9px}
+.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:950px}.table th,.table td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}.table th{font-size:10px;color:#667085;text-transform:uppercase;background:#fafbfc}.thumb{width:42px;height:42px;object-fit:cover;border-radius:7px}
+.preview{width:78px;height:78px;object-fit:cover;border-radius:9px;display:none;margin-top:7px}.hint{font-size:12px;color:var(--muted);line-height:1.5}.empty{text-align:center;padding:28px;color:var(--muted)}
+.calendar-head{display:flex;justify-content:space-between;align-items:center}.calgrid{display:grid;grid-template-columns:repeat(7,1fr);overflow:hidden;border:1px solid var(--border);border-radius:10px;margin-top:12px}.dow{text-align:center;padding:8px;font-size:10px;font-weight:800;color:var(--muted);background:#f8fafc}.day{min-height:92px;padding:7px;border-top:1px solid var(--border);border-right:1px solid var(--border);background:#fff;cursor:pointer}.day:nth-child(7n){border-right:0}.day.muted{background:#fafafa;color:#b4bbc7}.day.today{outline:2px solid var(--primary);outline-offset:-2px}.daynum{font-size:12px;font-weight:800}.pill{display:block;background:#e8efff;color:#2344b7;padding:3px 5px;border-radius:5px;font-size:9px;font-weight:800;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.two{display:grid;grid-template-columns:1.2fr .8fr;gap:15px}.formula{background:#f8faff;border:1px dashed #a9b9ee;padding:16px;border-radius:12px}.formula strong{font-size:22px}
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}.authbox{width:100%;max-width:430px}.authbox h1{margin-bottom:5px}.authbox .card{margin-top:15px}.status{font-size:12px;color:var(--muted);margin:8px 0}.userbar{font-size:12px;color:#cbd5e1;display:flex;gap:8px;align-items:center}.hidden{display:none!important}
+.toast{position:fixed;right:15px;bottom:15px;background:#111827;color:white;padding:12px 15px;border-radius:9px;display:none;z-index:50}.toast.show{display:block}
+@media(max-width:850px){.grid{grid-template-columns:1fr 1fr}.formgrid,.two{grid-template-columns:1fr}.header{align-items:flex-start;flex-direction:column}.day{min-height:72px}}
+@media(max-width:520px){.grid{grid-template-columns:1fr 1fr}.brand{font-size:16px}.day{min-height:60px;padding:5px}.pill{font-size:8px}.dow{font-size:8px}}
+</style>
+</head>
+<body>
+<div id="authView" class="auth">
+<div class="authbox">
+<h1>Home Credit Cloud Tracker</h1><p class="hint">Secure online transaction manager</p>
+<div class="card">
+<div class="field"><label>Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+<div class="field" style="margin-top:11px"><label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters"></div>
+<div class="actions"><button class="btn primary" id="login">Login</button><button class="btn secondary" id="signup">Create account</button></div>
+<p id="authMsg" class="status"></p>
+</div>
+</div>
+</div>
+
+<div id="appView" class="hidden">
+<header><div class="header">
+<div><div class="brand">Home Credit Cloud Tracker <small>Cloud database • private account</small></div></div>
+<div class="userbar"><span id="userEmail"></span><button class="btn secondary" id="logout">Logout</button></div>
+<nav>
+<button class="tab active" data-page="transactions">Transactions</button><button class="tab" data-page="calendar">Calendar</button><button class="tab" data-page="dashboard">Dashboard</button><button class="tab" data-page="backup">Backup</button>
+</nav>
+</div></header>
+<main>
+
+<section id="transactions" class="page active">
+<div class="grid">
+<div class="card stat"><div class="label">Total Transactions</div><div class="value" id="sCount">0</div></div>
+<div class="card stat"><div class="label">Product Value</div><div class="value" id="sValue">₹0</div></div>
+<div class="card stat"><div class="label">Down Payment</div><div class="value" id="sDP">₹0</div></div>
+<div class="card stat"><div class="label">This Month</div><div class="value" id="sMonth">0</div></div>
+</div>
+<div class="card section">
+<h2 id="formTitle">Add Transaction</h2>
+<form id="txForm">
+<input type="hidden" id="editId">
+<div class="formgrid">
+<div class="field"><label>Customer Photo</label><input id="photo" type="file" accept="image/*"><img id="preview" class="preview"></div>
+<div class="field"><label>Customer Name *</label><input id="name" required></div>
+<div class="field"><label>Product Name *</label><input id="product" required></div>
+<div class="field"><label>IMEI Number</label><input id="imei" inputmode="numeric"></div>
+<div class="field"><label>Customer Mobile *</label><input id="mobile" required type="tel"></div>
+<div class="field"><label>Product Price (₹) *</label><input id="price" required type="number" min="0" step=".01"></div>
+<div class="field"><label>Down Payment (₹)</label><input id="dp" type="number" min="0" step=".01"></div>
+<div class="field"><label>EMI (₹)</label><input id="emi" type="number" min="0" step=".01"></div>
+<div class="field"><label>Transaction Date *</label><input id="date" required type="date"></div>
+</div>
+<div class="actions"><button class="btn primary" id="saveBtn">Save Transaction</button><button type="button" class="btn secondary" id="resetBtn">Clear</button></div>
+</form></div>
+<div class="card section">
+<div class="toolbar"><input id="search" placeholder="Search name, mobile, IMEI, product..."><input id="monthFilter" type="month"><button class="btn secondary" id="clearFilter">All</button></div>
+<div class="tablewrap" style="margin-top:12px"><table class="table"><thead><tr><th>Photo</th><th>Date</th><th>Customer</th><th>Product</th><th>IMEI</th><th>Mobile</th><th>Price</th><th>DP</th><th>EMI</th><th>Actions</th></tr></thead><tbody id="tbody"></tbody></table></div>
+</div>
+</section>
+
+<section id="calendar" class="page"><div class="card"><div class="calendar-head"><button class="btn secondary" id="prevMonth">←</button><h2 id="calTitle"></h2><button class="btn secondary" id="nextMonth">→</button></div><div class="calgrid" id="calgrid"></div></div><div class="card section"><h3>Selected Day</h3><div id="dayDetails" class="empty">Click a date.</div></div></section>
+
+<section id="dashboard" class="page">
+<div class="grid"><div class="card stat"><div class="label">Total Transactions</div><div class="value" id="dCount">0</div></div><div class="card stat"><div class="label">Joining Fees</div><div class="value" id="dJoin">₹0</div></div><div class="card stat"><div class="label">VAS</div><div class="value" id="dVas">₹0</div></div><div class="card stat"><div class="label">Calculated %</div><div class="value" id="dPct">0%</div></div></div>
+<div class="two section"><div class="card"><h2>Transaction Inputs</h2><p class="hint">These values are stored in your cloud account.</p><div class="formgrid" style="grid-template-columns:1fr 1fr"><div class="field"><label>Total Transactions</label><input id="manualTotal" type="number" min="0"></div><div class="field"><label>Joining Fees (₹)</label><input id="joining" type="number" min="0" step=".01"></div><div class="field"><label>VAS (₹)</label><input id="vas" type="number" min="0" step=".01"></div></div><div class="actions"><button class="btn primary" id="calc">Calculate & Save</button><button class="btn secondary" id="useDb">Use saved transaction count</button></div></div><div class="card"><h2>Formula</h2><div class="formula">(Joining Fees + VAS) ÷ Total Transactions × 100<br><br><strong id="formulaResult">0%</strong></div></div></div>
+<div class="card section"><h2>Monthly Summary</h2><div class="tablewrap"><table class="table"><thead><tr><th>Month</th><th>Transactions</th><th>Product Value</th><th>Down Payment</th></tr></thead><tbody id="monthly"></tbody></table></div></div>
+</section>
+
+<section id="backup" class="page">
+<div class="card"><h2>Backup & Restore</h2><p class="hint">Your transactions and settings are already stored in the cloud. You can also download a CSV backup for Excel or a JSON backup for restoring the transaction fields.</p>
+<div class="actions"><button class="btn primary" id="csvBtn">Download CSV</button><button class="btn secondary" id="jsonBtn">Download JSON Backup</button><label class="btn secondary">Restore JSON <input id="restore" type="file" accept=".json" hidden></label></div>
+<p class="hint" style="margin-top:15px">Customer photos are stored separately in private cloud storage and are not embedded in the CSV/JSON backup. The cloud copy remains your primary photo backup.</p></div>
+</section>
+</main></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const SUPABASE_URL="https://mmwtrxoyjbdvlkmaeafa.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_zp2zEab1oPF2q4Py5ELAFg_Ids7JYLt";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let tx=[], settings={total:0,joining:0,vas:0}, calDate=new Date(), photoFile=null, currentUser=null;
+const $=id=>document.getElementById(id), money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+function toast(m){$('toast').textContent=m;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2600)}
+function authMsg(m){$('authMsg').textContent=m}
+$('date').value=today();
+
+$('login').onclick=async()=>{authMsg('Signing in...');let {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});authMsg(error?error.message:'')};
+$('signup').onclick=async()=>{authMsg('Creating account...');let {data,error}=await sb.auth.signUp({email:$('email').value.trim(),password:$('password').value});authMsg(error?error.message:(data.session?'Account created.':'Account created. Check your email if confirmation is enabled.'))};
+$('logout').onclick=()=>sb.auth.signOut();
+
+sb.auth.onAuthStateChange(async(_event,session)=>{if(session){currentUser=session.user; $('authView').classList.add('hidden');$('appView').classList.remove('hidden');$('userEmail').textContent=session.user.email;await loadAll()}else{currentUser=null;$('appView').classList.add('hidden');$('authView').classList.remove('hidden')}});
+async function loadAll(){let {data,error}=await sb.from('transactions').select('*').order('transaction_date',{ascending:false});if(error){toast(error.message);return}tx=data||[];let s=await sb.from('user_settings').select('*').eq('user_id',currentUser.id).maybeSingle();if(s.error){toast(s.error.message)}settings=s.data?{total:s.data.total_transactions||0,joining:s.data.joining_fees||0,vas:s.data.vas||0}:{total:0,joining:0,vas:0};renderAll()}
+
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$(b.dataset.page).classList.add('active');if(b.dataset.page==='calendar')renderCalendar();if(b.dataset.page==='dashboard')renderDashboard()});
+
+$('photo').onchange=e=>{photoFile=e.target.files[0]||null;if(photoFile){$('preview').src=URL.createObjectURL(photoFile);$('preview').style.display='block'}};
+$('resetBtn').onclick=resetForm;
+function resetForm(){$('txForm').reset();$('editId').value='';$('date').value=today();photoFile=null;$('preview').style.display='none';$('formTitle').textContent='Add Transaction';$('saveBtn').textContent='Save Transaction'}
+
+async function uploadPhoto(file,id){if(!file)return null;let ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');let path=`${currentUser.id}/${id}.${ext}`;let {error}=await sb.storage.from('customer-photos').upload(path,file,{upsert:true,contentType:file.type});if(error)throw error;return path}
+async function photoUrl(path){if(!path)return '';let {data,error}=await sb.storage.from('customer-photos').createSignedUrl(path,3600);return error?'':data?.signedUrl||''}
+
+$('txForm').onsubmit=async e=>{e.preventDefault();let id=$('editId').value||crypto.randomUUID();let old=tx.find(x=>x.id===id);let path=old?.photo_path||null;try{if(photoFile)path=await uploadPhoto(photoFile,id);let row={id,user_id:currentUser.id,customer_name:$('name').value.trim(),product_name:$('product').value.trim(),imei:$('imei').value.trim()||null,customer_mobile:$('mobile').value.trim(),product_price:+$('price').value||0,down_payment:+$('dp').value||0,emi:+$('emi').value||0,transaction_date:$('date').value,photo_path:path};let q=old?sb.from('transactions').update(row).eq('id',id).eq('user_id',currentUser.id):sb.from('transactions').insert(row);let {error}=await q;if(error)throw error;await loadAll();resetForm();toast(old?'Transaction updated':'Transaction saved')}catch(err){toast(err.message||String(err))}};
+async function deleteTx(id,path){if(!confirm('Delete this transaction?'))return;let {error}=await sb.from('transactions').delete().eq('id',id).eq('user_id',currentUser.id);if(error){toast(error.message);return}if(path)await sb.storage.from('customer-photos').remove([path]);await loadAll();toast('Transaction deleted')}
+async function editTx(id){let x=tx.find(t=>t.id===id);if(!x)return;$('editId').value=x.id;$('name').value=x.customer_name;$('product').value=x.product_name;$('imei').value=x.imei||'';$('mobile').value=x.customer_mobile;$('price').value=x.product_price;$('dp').value=x.down_payment;$('emi').value=x.emi;$('date').value=x.transaction_date;photoFile=null;if(x.photo_path){let u=await photoUrl(x.photo_path);if(u){$('preview').src=u;$('preview').style.display='block'}}$('formTitle').textContent='Edit Transaction';$('saveBtn').textContent='Update Transaction';scrollTo({top:0,behavior:'smooth'})}
+
+async function renderTable(){let q=$('search').value.toLowerCase(),m=$('monthFilter').value;let list=tx.filter(x=>(!q||[x.customer_name,x.product_name,x.imei,x.customer_mobile].some(v=>String(v||'').toLowerCase().includes(q)))&&(!m||x.transaction_date.startsWith(m)));let html='';for(let x of list){let u=await photoUrl(x.photo_path);html+=`<tr><td>${u?`<img class="thumb" src="${u}">`:'—'}</td><td>${esc(x.transaction_date)}</td><td><b>${esc(x.customer_name)}</b></td><td>${esc(x.product_name)}</td><td>${esc(x.imei||'')}</td><td>${esc(x.customer_mobile)}</td><td>${money(x.product_price)}</td><td>${money(x.down_payment)}</td><td>${money(x.emi)}</td><td><button class="btn secondary" onclick="editTx('${x.id}')">Edit</button> <button class="btn danger" onclick="deleteTx('${x.id}','${esc(x.photo_path||'')}')">Delete</button></td></tr>`}$('tbody').innerHTML=html||`<tr><td colspan="10" class="empty">No transactions found.</td></tr>`}
+$('search').oninput=renderTable;$('monthFilter').onchange=renderTable;$('clearFilter').onclick=()=>{$('search').value='';$('monthFilter').value='';renderTable()};
+
+function renderStats(){let mo=today().slice(0,7);$('sCount').textContent=tx.length;$('sValue').textContent=money(tx.reduce((a,x)=>a+Number(x.product_price||0),0));$('sDP').textContent=money(tx.reduce((a,x)=>a+Number(x.down_payment||0),0));$('sMonth').textContent=tx.filter(x=>x.transaction_date.startsWith(mo)).length}
+function renderCalendar(){let y=calDate.getFullYear(),m=calDate.getMonth(),first=new Date(y,m,1),start=first.getDay(),days=new Date(y,m+1,0).getDate();$('calTitle').textContent=calDate.toLocaleDateString('en-IN',{month:'long',year:'numeric'});let h=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<div class="dow">${x}</div>`).join('');for(let i=0;i<42;i++){let n=i-start+1,d=new Date(y,m,n),ds=d.toISOString().slice(0,10),cur=n>=1&&n<=days,list=tx.filter(x=>x.transaction_date===ds);h+=`<div class="day ${cur?'':'muted'} ${ds===today()?'today':''}" onclick="showDay('${ds}')"><div class="daynum">${d.getDate()}</div>${list.slice(0,3).map(x=>`<span class="pill">${esc(x.customer_name)}</span>`).join('')}${list.length>3?`<span class="pill">+${list.length-3} more</span>`:''}</div>`}$('calgrid').innerHTML=h}
+$('prevMonth').onclick=()=>{calDate.setMonth(calDate.getMonth()-1);renderCalendar()};$('nextMonth').onclick=()=>{calDate.setMonth(calDate.getMonth()+1);renderCalendar()};
+function showDay(ds){let list=tx.filter(x=>x.transaction_date===ds);$('dayDetails').innerHTML=list.length?list.map(x=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><b>${esc(x.customer_name)}</b> — ${esc(x.product_name)}<br><span class="hint">${esc(x.customer_mobile)} · IMEI ${esc(x.imei||'—')} · ${money(x.product_price)}</span></div>`).join(''):`<div class="empty">No transactions on ${ds}.</div>`}
+
+async function saveSettings(){let row={user_id:currentUser.id,total_transactions:+$('manualTotal').value||0,joining_fees:+$('joining').value||0,vas:+$('vas').value||0};let {error}=await sb.from('user_settings').upsert(row,{onConflict:'user_id'});if(error)throw error;settings={total:row.total_transactions,joining:row.joining_fees,vas:row.vas};renderDashboard()}
+function renderDashboard(){ $('manualTotal').value=settings.total;$('joining').value=settings.joining;$('vas').value=settings.vas;$('dCount').textContent=settings.total;$('dJoin').textContent=money(settings.joining);$('dVas').textContent=money(settings.vas);let p=settings.total?(settings.joining+settings.vas)/settings.total*100:0;$('dPct').textContent=p.toLocaleString('en-IN',{maximumFractionDigits:2})+'%';$('formulaResult').textContent=$('dPct').textContent;let g={};tx.forEach(x=>{let m=x.transaction_date.slice(0,7);g[m]??={c:0,v:0,dp:0};g[m].c++;g[m].v+=+x.product_price||0;g[m].dp+=+x.down_payment||0});$('monthly').innerHTML=Object.keys(g).sort().reverse().map(m=>`<tr><td>${new Date(m+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'})}</td><td>${g[m].c}</td><td>${money(g[m].v)}</td><td>${money(g[m].dp)}</td></tr>`).join('')||`<tr><td colspan="4" class="empty">No transactions yet.</td></tr>`}
+$('calc').onclick=async()=>{try{await saveSettings();toast('Dashboard values saved')}catch(e){toast(e.message)}};$('useDb').onclick=async()=>{$('manualTotal').value=tx.length;await saveSettings()};
+
+function download(name,text,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+$('csvBtn').onclick=()=>{let cols=['transaction_date','customer_name','product_name','imei','customer_mobile','product_price','down_payment','emi'];let csv=cols.join(',')+'\n'+tx.map(x=>cols.map(c=>`"${String(x[c]??'').replace(/"/g,'""')}"`).join(',')).join('\n');download('home-credit-transactions.csv',csv,'text/csv')};
+$('jsonBtn').onclick=()=>download('home-credit-backup.json',JSON.stringify({exported_at:new Date().toISOString(),transactions:tx.map(({id,user_id,photo_path,...x})=>x),settings},null,2),'application/json');
+$('restore').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let data=JSON.parse(await f.text());if(!Array.isArray(data.transactions))throw Error('Invalid backup');for(let x of data.transactions){await sb.from('transactions').insert({...x,id:crypto.randomUUID(),user_id:currentUser.id})}if(data.settings){settings=data.settings;await sb.from('user_settings').upsert({user_id:currentUser.id,total_transactions:+settings.total||0,joining_fees:+settings.joining||0,vas:+settings.vas||0},{onConflict:'user_id'})}await loadAll();toast('Backup restored')}catch(err){toast(err.message)}e.target.value=''};
+
+function renderAll(){renderStats();renderTable();renderCalendar();renderDashboard()}
+(async()=>{let {data}=await sb.auth.getSession();if(data.session){currentUser=data.session.user;$('authView').classList.add('hidden');$('appView').classList.remove('hidden');$('userEmail').textContent=currentUser.email;await loadAll()}})();
+</script>
+</body>
+</html>
